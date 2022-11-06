@@ -25,7 +25,7 @@ jobs:
       - name: deploy serverless
         uses: serverless/github-action@v3.1
         with:
-          args: deploy -- --stage staging
+          args: deploy --verbose --stage staging
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.STG_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.STG_AWS_SECRET_ACCESS_KEY }}
