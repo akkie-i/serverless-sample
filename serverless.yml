@@ -7,9 +7,9 @@ provider:
   name: aws
   runtime: nodejs18.x
   stage: ${opt:stage, "staging"}
-  ${file(./config/serverless/environment.yml)}
+  environment: ${file(./config/serverless/environment.yml)}
   apiGateway:
-    ${file(./config/serverless/apikeys.yml)}
+    apiKeys: ${file(./config/serverless/apikeys.yml)}
     usagePlan:
       quota:
         limit: 100
