@@ -1,0 +1,37 @@
+# https://www.serverless.com/framework/docs/providers/aws/guide/serverless.yml
+# https://github.com/serverless/examples/blob/v3/aws-node-http-api-dynamodb/todos/create.js
+
+service: serverless-http-api-dynamodb
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: ${opt:stage, "staging"}
+  ${file(./config/serverless/environment.yml)}
+  apiGateway:
+    ${file(./config/serverless/apikeys.yml)}
+    usagePlan:
+      quota:
+        limit: 100
+        offset: 0
+        period: MONTH
+      throttle:
+        rateLimit: 2
+        burstLimit: 3
+  httpApi:
+    cors: true
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource: "arn:aws:dynamodb:${aws:region}:*:table/${self:provider.environment.DYNAMO_USERS_TABLE}"
+
+functions: ${file(./config/serverless/functions.yml)}
+resources: ${file(./config/serverless/resources.yml)}

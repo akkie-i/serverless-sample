@@ -1,0 +1,5 @@
+node_modules
+.serverless
+.vscode
+config/serverless/apikeys.yml
+config/serverless/environment.yml

@@ -1,0 +1,39 @@
+create:
+  handler: users/create.create
+  events:
+    - httpApi:
+        path: /users
+        method: post
+        private: true
+
+list:
+  handler: users/list.list
+  events:
+    - httpApi:
+        path: /users
+        method: get
+        private: true
+
+get:
+  handler: users/get.get
+  events:
+    - httpApi:
+        path: /users/{id}
+        method: get
+        private: true
+
+update:
+  handler: users/update.update
+  events:
+    - httpApi:
+        path: /users/{id}
+        method: put
+        private: true
+
+delete:
+  handler: users/delete.delete
+  events:
+    - httpApi:
+        path: /users/{id}
+        method: delete
+        private: true

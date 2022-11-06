@@ -1,0 +1,30 @@
+name: デプロイ ステージング
+
+on:
+  push:
+    branches:
+      - master
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "18"
+      - name: set aws configure
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.STG_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.STG_AWS_SECRET_ACCESS_KEY }}
+      - name: get serverless env from s3
+        run: |
+          aws s3 cp s3://serverless-sample-staging/config/serverless/apikeys.yml ./config/serverless
+          aws s3 cp s3://serverless-sample-staging/config/serverless/environment.yml ./config/serverless
+      - name: deploy serverless
+        uses: serverless/github-action@v3.1
+        with:
+          args: deploy -- --stage staging
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.STG_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.STG_AWS_SECRET_ACCESS_KEY }}
