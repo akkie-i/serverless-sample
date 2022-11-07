@@ -14,10 +14,10 @@ module.exports.update = (event, context, callback) => {
       id: event.pathParameters.id,
     },
     ExpressionAttributeNames: {
-      "#users_name": "text",
-      "#users_age": "text",
-      "#users_gender": "text",
-      "#users_email": "text",
+      "#users_name": "name",
+      "#users_age": "age",
+      "#users_gender": "gender",
+      "#users_email": "email",
     },
     ExpressionAttributeValues: {
       ":name": data.name,
