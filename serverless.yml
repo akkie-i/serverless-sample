@@ -34,8 +34,8 @@ provider:
             - dynamodb:UpdateItem
             - dynamodb:DeleteItem
           Resource: "arn:aws:dynamodb:${aws:region}:*:table/${self:provider.environment.DYNAMO_USERS_TABLE}"
-custom:
-  profiles:
-    staging: aws1-serverless-full-access-staging
+#custom:
+#  profiles:
+#    staging: aws1-serverless-full-access-staging
 functions: ${file(./config/serverless/functions.yml)}
 resources: ${file(./config/serverless/resources.yml)}

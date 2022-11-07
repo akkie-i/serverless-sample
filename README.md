@@ -1,141 +1,86 @@
-# Serverless HTTP API
+## 事前準備
 
-This example demonstrates how to setup a [RESTful Web Services](https://en.wikipedia.org/wiki/Representational_state_transfer#Applied_to_web_services) allowing you to create, list, get, update and delete Todos. DynamoDB is used to store the data. This is just an example and of course you could use any data storage as a backend.
+- npm の導入
+- aws cli の導入
+- aws アカウントの準備及び IAM の作成
+- serverless の導入
+- serverless の credentials 情報の生成
 
-## Structure
+詳細は[こちら](https://zenn.dev/akkie1030/articles/serverless-tutorial-api-gateway-lambda)を参照
 
-This service has a separate directory for all the todo operations. For each operation exactly one file exists e.g. `todos/delete.js`. In each of these files there is exactly one function which is directly attached to `module.exports`.
-
-The idea behind the `todos` directory is that in case you want to create a service containing multiple resources e.g. users, notes, comments you could do so in the same service. While this is certainly possible you might consider creating a separate service for each resource. It depends on the use-case and your preference.
-
-## Use-cases
-
-- API for a Web Application
-- API for a Mobile Application
-
-## Setup
+## セットアップ
 
 ```bash
 npm install
 ```
 
-## Deploy
+## デプロイ
 
-In order to deploy the endpoint simply run
+GitHub Actions か直接 CLI でデプロイできます
 
-```bash
-serverless deploy
-```
+### GitHub Actions
 
-The expected result should be similar to:
+[GitHub Actions で CI を構築](https://zenn.dev/akkie1030/articles/serverless-tutorial-api-gateway-lambda#github-actions-%E3%81%A7-ci-%E3%82%92%E6%A7%8B%E7%AF%89)を参考に GitHub への変数の登録、S3 へのファイル配置を完了させた上で `main`ブランチにプッシュ
 
 ```bash
-Serverless: Packaging service…
-Serverless: Uploading CloudFormation file to S3…
-Serverless: Uploading service .zip file to S3…
-Serverless: Updating Stack…
-Serverless: Checking Stack update progress…
-Serverless: Stack update finished…
-
-Service Information
-service: serverless-http-api-dynamodb
-stage: dev
-region: us-east-1
-api keys:
-  None
-endpoints:
-  POST - https://45wf34z5yf.execute-api.us-east-1.amazonaws.com/todos
-  GET - https://45wf34z5yf.execute-api.us-east-1.amazonaws.com/todos
-  GET - https://45wf34z5yf.execute-api.us-east-1.amazonaws.com/todos/{id}
-  PUT - https://45wf34z5yf.execute-api.us-east-1.amazonaws.com/todos/{id}
-  DELETE - https://45wf34z5yf.execute-api.us-east-1.amazonaws.com/todos/{id}
-functions:
-  serverless-http-api-dynamodb-dev-update: arn:aws:lambda:us-east-1:488110005556:function:serverless-http-api-dynamodb-dev-update
-  serverless-http-api-dynamodb-dev-get: arn:aws:lambda:us-east-1:488110005556:function:serverless-http-api-dynamodb-dev-get
-  serverless-http-api-dynamodb-dev-list: arn:aws:lambda:us-east-1:488110005556:function:serverless-http-api-dynamodb-dev-list
-  serverless-http-api-dynamodb-dev-create: arn:aws:lambda:us-east-1:488110005556:function:serverless-http-api-dynamodb-dev-create
-  serverless-http-api-dynamodb-dev-delete: arn:aws:lambda:us-east-1:488110005556:function:serverless-http-api-dynamodb-dev-delete
+git push origin main
 ```
 
-## Usage
+### CLI でデプロイ
 
-You can create, retrieve, update, or delete todos with the following commands:
+`serverless.yml`のコメントアウト部分を外してください。
+[こちら](https://zenn.dev/akkie1030/articles/serverless-tutorial-api-gateway-lambda#config%2Fserverless-%E3%81%AE%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E3%82%92%E7%A2%BA%E8%AA%8D%E3%81%99%E3%82%8B)を参考に `config/serverless`フォルダに `apikeys.yml`と `environment.yml`を作成してください。
 
-### Create a Todo
+上記完了させた上で以下のコマンドを実行
 
 ```bash
-curl -X POST https://XXXXXXX.execute-api.us-east-1.amazonaws.com/todos --data '{ "text": "Learn Serverless" }'
+sls deploy --stage staging
+
+# 丁寧に指定する場合以下
+sls deploy \
+--verbose \
+--stage staging \
+--aws-profile aws1-serverless-full-access-staging \
+--region ap-northeast-1
 ```
 
-Example Result:
+## エンドポイント一覧
+
+デプロイ後に `sls info`でエンドポイントとシークレットキーが取得できるので `****`のマスク部分は置換してください。
+
+### Create
 
 ```bash
-{"text":"Learn Serverless","id":"ee6490d0-aa11e6-9ede-afdfa051af86","createdAt":1479138570824,"checked":false,"updatedAt":1479138570824}%
+$ curl -X POST https://*****.execute-api.ap-northeast-1.amazonaws.com/staging/users \
+-H "x-api-key: *****" \
+--data '{ "name": "taro", "age": 20, "email": "text@example.com", "gender": "男"}'
 ```
 
-### List all Todos
+### List
 
 ```bash
-curl https://XXXXXXX.execute-api.us-east-1.amazonaws.com/todos
+$ curl https://*****.execute-api.ap-northeast-1.amazonaws.com/staging/users \
+-H "x-api-key: *****"
 ```
 
-Example output:
+### Get
 
 ```bash
-[{"text":"Deploy my first service","id":"ac90feaa11e6-9ede-afdfa051af86","checked":true,"updatedAt":1479139961304},{"text":"Learn Serverless","id":"206793aa11e6-9ede-afdfa051af86","createdAt":1479139943241,"checked":false,"updatedAt":1479139943241}]%
+$ curl https://*****.execute-api.ap-northeast-1.amazonaws.com/staging/users/{id} \
+-H "x-api-key: *****"
 ```
 
-### Get one Todo
+### Update
 
 ```bash
-# Replace the <id> part with a real id from your todos table
-curl https://XXXXXXX.execute-api.us-east-1.amazonaws.com/todos/<id>
+#$ curl -X PUT https://*****.execute-api.ap-northeast-1.amazonaws.com/staging/users/{id} \
+-H "x-api-key: *****" \
+--data '{ "name": "taro", "age": 999, "email": "text@example.com", "gender": "男"}'
 ```
 
-Example Result:
+### Delete
 
 ```bash
-{"text":"Learn Serverless","id":"ee6490d0-aa11e6-9ede-afdfa051af86","createdAt":1479138570824,"checked":false,"updatedAt":1479138570824}%
+$ curl -X DELETE https://*****.execute-api.ap-northeast-1.amazonaws.com/staging/users/{id} \
+-H "x-api-key: *****" \
 ```
-
-### Update a Todo
-
-```bash
-# Replace the <id> part with a real id from your todos table
-curl -X PUT https://XXXXXXX.execute-api.us-east-1.amazonaws.com/todos/<id> --data '{ "text": "Learn Serverless", "checked": true }'
-```
-
-Example Result:
-
-```bash
-{"text":"Learn Serverless","id":"ee6490d0-aa11e6-9ede-afdfa051af86","createdAt":1479138570824,"checked":true,"updatedAt":1479138570824}%
-```
-
-### Delete a Todo
-
-```bash
-# Replace the <id> part with a real id from your todos table
-curl -X DELETE https://XXXXXXX.execute-api.us-east-1.amazonaws.com/todos/<id>
-```
-
-No output
-
-## Scaling
-
-### AWS Lambda
-
-By default, AWS Lambda limits the total concurrent executions across all functions within a given region to 100. The default limit is a safety limit that protects you from costs due to potential runaway or recursive functions during initial development and testing. To increase this limit above the default, follow the steps in [To request a limit increase for concurrent executions](http://docs.aws.amazon.com/lambda/latest/dg/concurrent-executions.html#increase-concurrent-executions-limit).
-
-### DynamoDB
-
-When you create a table, you specify how much provisioned throughput capacity you want to reserve for reads and writes. DynamoDB will reserve the necessary resources to meet your throughput needs while ensuring consistent, low-latency performance. You can change the provisioned throughput and increasing or decreasing capacity as needed.
-
-This is can be done via settings in the `serverless.yml`.
-
-```yaml
-ProvisionedThroughput:
-  ReadCapacityUnits: 1
-  WriteCapacityUnits: 1
-```
-
-In case you expect a lot of traffic fluctuation we recommend to checkout this guide on how to auto scale DynamoDB [https://aws.amazon.com/blogs/aws/auto-scale-dynamodb-with-dynamic-dynamodb/](https://aws.amazon.com/blogs/aws/auto-scale-dynamodb-with-dynamic-dynamodb/)
