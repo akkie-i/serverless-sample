@@ -27,7 +27,7 @@ module.exports.update = (event, context, callback) => {
       ":updatedAt": timestamp,
     },
     UpdateExpression:
-      "SET #users_name = :name, users_age = :age, users_gender = :gender, users_email = :email , updatedAt = :updatedAt",
+      "SET #users_name = :name, #users_age = :age, #users_gender = :gender, #users_email = :email , updatedAt = :updatedAt",
     ReturnValues: "ALL_NEW",
   };
 
